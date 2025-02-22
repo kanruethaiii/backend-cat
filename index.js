@@ -145,18 +145,10 @@ const Detail = sequelizeDetail.define("detail", {
     order_id: {
         type: DataTypes.STRING,
         allowNull: false,
-        references: {
-            model: Order,
-            key: "order_id",
-        },
     },
     cat_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: Cat,
-            key: "id",
-        },
     },
     quantity: {
         type: DataTypes.INTEGER,
@@ -226,6 +218,7 @@ app.delete("/cats/:id", async (req, res) => {
 });
 
 // 📌 Employee Routes
+// 📌 GET: ดึงข้อมูลพนักงานทั้งหมด
 app.get("/employees", async (req, res) => {
     try {
         const employees = await Employee.findAll();
@@ -236,7 +229,70 @@ app.get("/employees", async (req, res) => {
     }
 });
 
+// 📌 POST: สร้างพนักงานใหม่
+app.post("/employees", async (req, res) => {
+    try {
+        const { username, firstName, lastName, email, phoneNumber } = req.body;
+        const newEmployee = await Employee.create({
+            username,
+            firstName,
+            lastName,
+            email,
+            phoneNumber,
+        });
+        res.status(201).json(newEmployee);
+    } catch (err) {
+        console.error("Error creating employee:", err);
+        res.status(500).send(err);
+    }
+});
+
+// 📌 PUT: อัปเดตข้อมูลพนักงาน
+app.put("/employees/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { username, firstName, lastName, email, phoneNumber } = req.body;
+        const employee = await Employee.findByPk(id);
+
+        if (!employee) {
+            return res.status(404).json({ message: "Employee not found" });
+        }
+
+        employee.username = username || employee.username;
+        employee.firstName = firstName || employee.firstName;
+        employee.lastName = lastName || employee.lastName;
+        employee.email = email || employee.email;
+        employee.phoneNumber = phoneNumber || employee.phoneNumber;
+
+        await employee.save();
+        res.json(employee);
+    } catch (err) {
+        console.error("Error updating employee:", err);
+        res.status(500).send(err);
+    }
+});
+
+// 📌 DELETE: ลบพนักงาน
+app.delete("/employees/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const employee = await Employee.findByPk(id);
+
+        if (!employee) {
+            return res.status(404).json({ message: "Employee not found" });
+        }
+
+        await employee.destroy();
+        res.json({ message: "Employee deleted successfully" });
+    } catch (err) {
+        console.error("Error deleting employee:", err);
+        res.status(500).send(err);
+    }
+});
+
+
 // 📌 Order Routes
+// 📌 GET: ดึงข้อมูลคำสั่งซื้อทั้งหมด
 app.get("/orders", async (req, res) => {
     try {
         const orders = await Order.findAll();
@@ -247,7 +303,67 @@ app.get("/orders", async (req, res) => {
     }
 });
 
+// 📌 POST: สร้างคำสั่งซื้อใหม่
+app.post("/orders", async (req, res) => {
+    try {
+        const { order_id, customer_id, order_date, total_amount } = req.body;
+        const newOrder = await Order.create({
+            order_id,
+            customer_id,
+            order_date,
+            total_amount,
+        });
+        res.status(201).json(newOrder);
+    } catch (err) {
+        console.error("Error creating order:", err);
+        res.status(500).send(err);
+    }
+});
+
+// 📌 PUT: อัปเดตข้อมูลคำสั่งซื้อ
+app.put("/orders/:order_id", async (req, res) => {
+    try {
+        const { order_id } = req.params;
+        const { customer_id, order_date, total_amount } = req.body;
+        const order = await Order.findByPk(order_id);
+
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        order.customer_id = customer_id || order.customer_id;
+        order.order_date = order_date || order.order_date;
+        order.total_amount = total_amount || order.total_amount;
+
+        await order.save();
+        res.json(order);
+    } catch (err) {
+        console.error("Error updating order:", err);
+        res.status(500).send(err);
+    }
+});
+
+// 📌 DELETE: ลบคำสั่งซื้อ
+app.delete("/orders/:order_id", async (req, res) => {
+    try {
+        const { order_id } = req.params;
+        const order = await Order.findByPk(order_id);
+
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        await order.destroy();
+        res.json({ message: "Order deleted successfully" });
+    } catch (err) {
+        console.error("Error deleting order:", err);
+        res.status(500).send(err);
+    }
+});
+
+
 // 📌 Detail Routes
+// 📌 GET: ดึงข้อมูลรายละเอียดคำสั่งซื้อทั้งหมด
 app.get("/details", async (req, res) => {
     try {
         const details = await Detail.findAll();
@@ -257,6 +373,61 @@ app.get("/details", async (req, res) => {
         res.status(500).send(err);
     }
 });
+
+app.post("/details", async (req, res) => {
+    Detail.create(req.body).then((detail) => {
+        console.log (detail);
+        res.send(req.body);
+       
+    }).catch((err) => {
+        res.status(500).send(err);
+    });
+    
+});
+
+
+// 📌 PUT: อัปเดตรายละเอียดคำสั่งซื้อ
+app.put("/details/:detail_id", async (req, res) => {
+    try {
+        const { detail_id } = req.params;
+        const { order_id, cat_id, quantity, unitPrice } = req.body;
+        const detail = await Detail.findByPk(detail_id);
+
+        if (!detail) {
+            return res.status(404).json({ message: "Detail not found" });
+        }
+
+        detail.order_id = order_id || detail.order_id;
+        detail.cat_id = cat_id || detail.cat_id;
+        detail.quantity = quantity || detail.quantity;
+        detail.unitPrice = unitPrice || detail.unitPrice;
+
+        await detail.save();
+        res.json(detail);
+    } catch (err) {
+        console.error("Error updating detail:", err);
+        res.status(500).send(err);
+    }
+});
+
+// 📌 DELETE: ลบรายละเอียดคำสั่งซื้อ
+app.delete("/details/:detail_id", async (req, res) => {
+    try {
+        const { detail_id } = req.params;
+        const detail = await Detail.findByPk(detail_id);
+
+        if (!detail) {
+            return res.status(404).json({ message: "Detail not found" });
+        }
+
+        await detail.destroy();
+        res.json({ message: "Detail deleted successfully" });
+    } catch (err) {
+        console.error("Error deleting detail:", err);
+        res.status(500).send(err);
+    }
+});
+
 
 // ตรวจสอบการเชื่อมต่อฐานข้อมูลก่อนเริ่มเซิร์ฟเวอร์
 checkDatabaseConnection().then(() => {
