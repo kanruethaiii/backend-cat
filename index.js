@@ -1,6 +1,6 @@
 require("dotenv").config();
 const express = require("express");
-const { Sequelize, DataTypes } = require("sequelize");
+const { Sequelize, DataTypes, json } = require("sequelize");
 
 const app = express();
 app.use(express.json());
@@ -179,14 +179,24 @@ app.get("/cats", async (req, res) => {
     }
 });
 
-app.post("/cats", async (req, res) => {
+app.get("/cats/:id", async (req, res) => {
     try {
-        const newCat = await Cat.create(req.body);
-        res.status(201).json(newCat);
+        const cats = await Cat.findByPk(req.params.id);
+        res.json(cats);
     } catch (err) {
-        console.error("Error creating cat:", err);
+        console.error("Error fetching cats:", err);
         res.status(500).send(err);
     }
+});
+
+app.post("/cats", async (req, res) => {
+    console.log(req.body);
+    
+    //await Cat.create(req.body).then((cat => {
+        //res.send(cat);
+    //})).catch(err => {
+        //res.send(500).send(err);
+    //})
 });
 
 app.put("/cats/:id", async (req, res) => {
@@ -216,6 +226,22 @@ app.delete("/cats/:id", async (req, res) => {
         res.status(500).send(err);
     }
 });
+
+// 📌 Cat Update Route (แสดงข้อมูลแมวที่จะแก้ไข)
+app.get("/cats/edit/:id", async (req, res) => {
+    try {
+        const cats = await Cat.findByPk(req.params.id);
+        if (!cats) {
+            return res.status(404).send("Cat not found");
+        }
+        const cat = cats.dataValues;
+        res.json(cat);  // ส่งข้อมูล cat ไปที่ view (ejs หรือ html)
+    } catch (err) {
+        console.error("Error fetching cat:", err);
+        res.status(500).send(err);
+    }
+});
+
 
 // 📌 Employee Routes
 // 📌 GET: ดึงข้อมูลพนักงานทั้งหมด
@@ -290,6 +316,20 @@ app.delete("/employees/:id", async (req, res) => {
     }
 });
 
+// 📌 Employee Update Route (แสดงข้อมูลพนักงานที่จะแก้ไข)
+app.get("/employees/edit/:id", async (req, res) => {
+    try {
+        const employee = await Employee.findByPk(req.params.id);
+        if (!employee) {
+            return res.status(404).send("Employee not found");
+        }
+        res.render("editEmployee", { employee });  // ส่งข้อมูล employee ไปที่ view
+    } catch (err) {
+        console.error("Error fetching employee:", err);
+        res.status(500).send(err);
+    }
+});
+
 
 // 📌 Order Routes
 // 📌 GET: ดึงข้อมูลคำสั่งซื้อทั้งหมด
@@ -360,6 +400,21 @@ app.delete("/orders/:order_id", async (req, res) => {
         res.status(500).send(err);
     }
 });
+
+// 📌 Order Update Route (แสดงข้อมูลคำสั่งซื้อที่จะแก้ไข)
+app.get("/orders/edit/:order_id", async (req, res) => {
+    try {
+        const order = await Order.findByPk(req.params.order_id);
+        if (!order) {
+            return res.status(404).send("Order not found");
+        }
+        res.render("editOrder", { order });  // ส่งข้อมูล order ไปที่ view
+    } catch (err) {
+        console.error("Error fetching order:", err);
+        res.status(500).send(err);
+    }
+});
+
 
 
 // 📌 Detail Routes
