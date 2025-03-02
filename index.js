@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
-const { Sequelize, DataTypes, json } = require("sequelize");
+const { Sequelize, DataTypes } = require("sequelize");
+const { parse } = require("dotenv");
 
 const app = express();
 app.use(express.json());
@@ -12,31 +13,39 @@ const sequelizeCat = new Sequelize({
     logging: false, // ปิด log ของ sequelize
 });
 
-const sequelizeEmployee = new Sequelize({
-    dialect: "sqlite",
-    storage: "./Database/employees.db", // ฐานข้อมูลสำหรับตาราง employee
-    logging: false,
-});
+// const sequelizeEmployee = new Sequelize({
+//     dialect: "sqlite",
+//     storage: "./Database/employees.db", // ฐานข้อมูลสำหรับตาราง employee
+//     logging: false,
+// });
 
-const sequelizeOrder = new Sequelize({
-    dialect: "sqlite",
-    storage: "./Database/order.db", // ฐานข้อมูลสำหรับตาราง order
-    logging: false,
-});
+// const sequelizeOrder = new Sequelize({
+//     dialect: "sqlite",
+//     storage: "./Database/order.db", // ฐานข้อมูลสำหรับตาราง order
+//     logging: false,
+// });
 
-const sequelizeDetail = new Sequelize({
-    dialect: "sqlite",
-    storage: "./Database/detail.db", // ฐานข้อมูลสำหรับตาราง detail
-    logging: false,
-});
+// const sequelizeDetail = new Sequelize({
+//     dialect: "sqlite",
+//     storage: "./Database/detail.db", // ฐานข้อมูลสำหรับตาราง detail
+//     logging: false,
+// });
+
+// const sequelizeCustomer = new Sequelize({
+//     dialect: "sqlite",
+//     storage: "./Database/customer.db",
+//     logging: false,
+// });
+
 
 // 📌 ตรวจสอบการเชื่อมต่อฐานข้อมูล
 async function checkDatabaseConnection() {
     try {
         await sequelizeCat.authenticate();
-        await sequelizeEmployee.authenticate();
-        await sequelizeOrder.authenticate();
-        await sequelizeDetail.authenticate();
+        // await sequelizeEmployee.authenticate();
+        // await sequelizeOrder.authenticate();
+        // await sequelizeDetail.authenticate();
+        // await sequelizeCustomer.authenticate();
         console.log("🎉 Database connection successful!");
     } catch (error) {
         console.error("Unable to connect to the database:", error);
@@ -78,7 +87,108 @@ const Cat = sequelizeCat.define("cat", {
     },
 });
 
-const Employee = sequelizeEmployee.define("employee", {
+// const Employee = sequelizeEmployee.define("employee", {
+//     id: {
+//         type: DataTypes.INTEGER,
+//         autoIncrement: true,
+//         primaryKey: true,
+//     },
+//     username: {
+//         type: DataTypes.STRING,
+//         allowNull: false,
+//         unique: true,
+//     },
+//     firstName: {
+//         type: DataTypes.STRING,
+//         allowNull: false,
+//     },
+//     lastName: {
+//         type: DataTypes.STRING,
+//         allowNull: false,
+//     },
+//     email: {
+//         type: DataTypes.STRING,
+//         allowNull: false,
+//         unique: true,
+//         validate: {
+//             isEmail: true,
+//         },
+//     },
+//     phoneNumber: {
+//         type: DataTypes.STRING,
+//         allowNull: false,
+//         validate: {
+//             isNumeric: true,
+//         },
+//     }
+// });
+
+const Order = sequelizeCat.define("order", {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+    },
+    customer_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    customer_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    cat_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    cat_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    quantity: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    unitPrice: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+    },
+    order_date: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW,
+    },
+    total_amount: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+    }
+});
+
+// const OrderDetail = sequelizeCat.define("order_detail", {
+//     detail_id: {
+//         type: DataTypes.INTEGER,
+//         primaryKey: true,
+//         autoIncrement: true,
+//     },
+//     order_id: {
+//         type: DataTypes.STRING,
+//         allowNull: false,
+//     },
+//     cat_id: {
+//         type: DataTypes.INTEGER,
+//         allowNull: false,
+//     },
+//     quantity: {
+//         type: DataTypes.INTEGER,
+//         allowNull: false,
+//     },
+//     unitPrice: {
+//         type: DataTypes.FLOAT,
+//         allowNull: false,
+//     },
+// });
+
+const Customer = sequelizeCat.define("customer", {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -114,57 +224,29 @@ const Employee = sequelizeEmployee.define("employee", {
     }
 });
 
-const Order = sequelizeOrder.define("order", {
-    order_id: {
-        type: DataTypes.STRING,
-        primaryKey: true,
-        allowNull: false,
-        unique: true,
-    },
-    customer_id: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    order_date: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.NOW,
-    },
-    total_amount: {
+const Breed = sequelizeCat.define("breed", {
+    id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-    }
-});
-
-const Detail = sequelizeDetail.define("detail", {
-    detail_id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
         autoIncrement: true,
+        primaryKey: true,
     },
-    order_id: {
+    name: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    cat_id: {
-        type: DataTypes.INTEGER,
+    is_active: {
+        type: DataTypes.BOOLEAN,
         allowNull: false,
-    },
-    quantity: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-    },
-    unitPrice: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+        defaultValue: true,
     },
 });
 
 // 📌 สร้างตารางในฐานข้อมูล
 sequelizeCat.sync({ force: false });
-sequelizeEmployee.sync({ force: false });
-sequelizeOrder.sync({ force: false });
-sequelizeDetail.sync({ force: false });
+// sequelizeEmployee.sync({ force: false });
+// sequelizeOrder.sync({ force: false });
+// sequelizeDetail.sync({ force: false });
+// sequelizeCustomer.sync({ force: false });
 
 // 📌 Routes สำหรับจัดการ API ของแต่ละโมเดล
 
@@ -178,7 +260,6 @@ app.get("/cats", async (req, res) => {
         res.status(500).send(err);
     }
 });
-
 app.get("/cats/:id", async (req, res) => {
     try {
         const cats = await Cat.findByPk(req.params.id);
@@ -188,17 +269,13 @@ app.get("/cats/:id", async (req, res) => {
         res.status(500).send(err);
     }
 });
-
 app.post("/cats", async (req, res) => {
-    console.log(req.body);
-    
-    //await Cat.create(req.body).then((cat => {
-        //res.send(cat);
-    //})).catch(err => {
-        //res.send(500).send(err);
-    //})
+    await Cat.create(req.body).then((cat) => {
+        res.send(req.body);
+    }).catch((err) => {
+        res.status(500).send(err);
+    });
 });
-
 app.put("/cats/:id", async (req, res) => {
     try {
         const cat = await Cat.findByPk(req.params.id);
@@ -212,7 +289,6 @@ app.put("/cats/:id", async (req, res) => {
         res.status(500).send(err);
     }
 });
-
 app.delete("/cats/:id", async (req, res) => {
     try {
         const cat = await Cat.findByPk(req.params.id);
@@ -226,8 +302,6 @@ app.delete("/cats/:id", async (req, res) => {
         res.status(500).send(err);
     }
 });
-
-// 📌 Cat Update Route (แสดงข้อมูลแมวที่จะแก้ไข)
 app.get("/cats/edit/:id", async (req, res) => {
     try {
         const cats = await Cat.findByPk(req.params.id);
@@ -242,139 +316,131 @@ app.get("/cats/edit/:id", async (req, res) => {
     }
 });
 
-
-// 📌 Employee Routes
-// 📌 GET: ดึงข้อมูลพนักงานทั้งหมด
-app.get("/employees", async (req, res) => {
+// Customers Routes
+app.get("/customers", async (req, res) => {
     try {
-        const employees = await Employee.findAll();
-        res.json(employees);
+        const response = await Customer.findAll();
+        res.json(response);
     } catch (err) {
-        console.error("Error fetching employees:", err);
+        console.error("Error fetching data:", err);
         res.status(500).send(err);
     }
 });
-
-// 📌 POST: สร้างพนักงานใหม่
-app.post("/employees", async (req, res) => {
+app.get("/customers/:id", async (req, res) => {
     try {
-        const { username, firstName, lastName, email, phoneNumber } = req.body;
-        const newEmployee = await Employee.create({
-            username,
-            firstName,
-            lastName,
-            email,
-            phoneNumber,
-        });
-        res.status(201).json(newEmployee);
+        const response = await Customer.findByPk(req.params.id);
+        res.json(response);
     } catch (err) {
-        console.error("Error creating employee:", err);
+        console.error("Error fetching items:", err);
         res.status(500).send(err);
     }
 });
-
-// 📌 PUT: อัปเดตข้อมูลพนักงาน
-app.put("/employees/:id", async (req, res) => {
+app.post("/customers", async (req, res) => {
+    await Customer.create(req.body).then((item) => {
+        res.send(req.body);
+    }).catch((err) => {
+        res.status(500).send(err);
+    });
+});
+app.put("/customers/:id", async (req, res) => {
     try {
-        const { id } = req.params;
-        const { username, firstName, lastName, email, phoneNumber } = req.body;
-        const employee = await Employee.findByPk(id);
-
-        if (!employee) {
-            return res.status(404).json({ message: "Employee not found" });
+        const response = await Customer.findByPk(req.params.id);
+        if (!response) {
+            return res.status(404).send("Item not found");
         }
-
-        employee.username = username || employee.username;
-        employee.firstName = firstName || employee.firstName;
-        employee.lastName = lastName || employee.lastName;
-        employee.email = email || employee.email;
-        employee.phoneNumber = phoneNumber || employee.phoneNumber;
-
-        await employee.save();
-        res.json(employee);
+        await response.update(req.body);
+        res.json(response);
     } catch (err) {
-        console.error("Error updating employee:", err);
+        console.error("Error updating item:", err);
         res.status(500).send(err);
     }
 });
-
-// 📌 DELETE: ลบพนักงาน
-app.delete("/employees/:id", async (req, res) => {
+app.delete("/customers/:id", async (req, res) => {
     try {
-        const { id } = req.params;
-        const employee = await Employee.findByPk(id);
-
-        if (!employee) {
-            return res.status(404).json({ message: "Employee not found" });
+        const response = await Customer.findByPk(req.params.id);
+        if (!response) {
+            return res.status(404).send("Item not found");
         }
-
-        await employee.destroy();
-        res.json({ message: "Employee deleted successfully" });
+        await response.destroy();
+        res.status(204).send();
     } catch (err) {
-        console.error("Error deleting employee:", err);
+        console.error("Error deleting item:", err);
         res.status(500).send(err);
     }
 });
 
-// 📌 Employee Update Route (แสดงข้อมูลพนักงานที่จะแก้ไข)
-app.get("/employees/edit/:id", async (req, res) => {
-    try {
-        const employee = await Employee.findByPk(req.params.id);
-        if (!employee) {
-            return res.status(404).send("Employee not found");
-        }
-        res.render("editEmployee", { employee });  // ส่งข้อมูล employee ไปที่ view
-    } catch (err) {
-        console.error("Error fetching employee:", err);
-        res.status(500).send(err);
-    }
-});
-
-
-// 📌 Order Routes
-// 📌 GET: ดึงข้อมูลคำสั่งซื้อทั้งหมด
 app.get("/orders", async (req, res) => {
     try {
-        const orders = await Order.findAll();
+        const orders = await Order.findAll()
         res.json(orders);
     } catch (err) {
         console.error("Error fetching orders:", err);
         res.status(500).send(err);
     }
 });
-
-// 📌 POST: สร้างคำสั่งซื้อใหม่
+app.get("/orders/:id", async (req, res) => {
+    try {
+        const response = await Order.findByPk(req.params.id);
+        res.json(response);
+    } catch (err) {
+        console.error("Error fetching items:", err);
+        res.status(500).send(err);
+    }
+});
 app.post("/orders", async (req, res) => {
     try {
-        const { order_id, customer_id, order_date, total_amount } = req.body;
+        const {cat, customer, quantity, unitPrice } = req.body;
+
+        if (!cat || !customer || !quantity || !unitPrice) {
+            return res.status(400).json({ error: "Missing required fields" });
+        }
+        
+        const resCustomer = await Customer.findByPk(customer);
+        const resCat = await Cat.findByPk(cat);
+
+        const customer_id = resCustomer.id;
+        const customer_name = resCustomer.username;
+        const cat_id = resCat.id;
+        const cat_name = resCat.name;
+        const total_amount = parseInt(quantity) * parseFloat(unitPrice);
+        
         const newOrder = await Order.create({
-            order_id,
             customer_id,
-            order_date,
-            total_amount,
+            customer_name,
+            cat_id,
+            cat_name,
+            quantity,
+            unitPrice,
+            total_amount
         });
+
         res.status(201).json(newOrder);
+
     } catch (err) {
         console.error("Error creating order:", err);
         res.status(500).send(err);
     }
 });
-
-// 📌 PUT: อัปเดตข้อมูลคำสั่งซื้อ
 app.put("/orders/:order_id", async (req, res) => {
     try {
         const { order_id } = req.params;
-        const { customer_id, order_date, total_amount } = req.body;
+        const { cat, customer, quantity, unitPrice } = req.body;
         const order = await Order.findByPk(order_id);
 
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
         }
 
-        order.customer_id = customer_id || order.customer_id;
-        order.order_date = order_date || order.order_date;
-        order.total_amount = total_amount || order.total_amount;
+        const resCustomer = await Customer.findByPk(customer);
+        const resCat = await Cat.findByPk(cat);
 
+        order.customer_id = resCustomer.id || order.customer_id;
+        order.customer_name = resCustomer.name || order.customer_name;
+        order.cat_id = resCat.id || order.cat_id;
+        order.cat_name = resCat.name || order.cat_name;
+        order.quantity = quantity || order.quantity;
+        order.unitPrice = unitPrice || order.unitPrice;
+        order.total_amount = parseInt(quantity) * parseFloat(unitPrice)
         await order.save();
         res.json(order);
     } catch (err) {
@@ -382,8 +448,6 @@ app.put("/orders/:order_id", async (req, res) => {
         res.status(500).send(err);
     }
 });
-
-// 📌 DELETE: ลบคำสั่งซื้อ
 app.delete("/orders/:order_id", async (req, res) => {
     try {
         const { order_id } = req.params;
@@ -400,8 +464,6 @@ app.delete("/orders/:order_id", async (req, res) => {
         res.status(500).send(err);
     }
 });
-
-// 📌 Order Update Route (แสดงข้อมูลคำสั่งซื้อที่จะแก้ไข)
 app.get("/orders/edit/:order_id", async (req, res) => {
     try {
         const order = await Order.findByPk(req.params.order_id);
@@ -415,74 +477,74 @@ app.get("/orders/edit/:order_id", async (req, res) => {
     }
 });
 
-
-
-// 📌 Detail Routes
-// 📌 GET: ดึงข้อมูลรายละเอียดคำสั่งซื้อทั้งหมด
-app.get("/details", async (req, res) => {
+app.get("/breeds", async (req, res) => {
     try {
-        const details = await Detail.findAll();
-        res.json(details);
+        const breeds = await Breed.findAll({
+            where: {
+                is_active: true,
+            },
+        });
+        res.json(breeds);
     } catch (err) {
-        console.error("Error fetching details:", err);
+        console.error("Error fetching breeds:", err);
         res.status(500).send(err);
     }
 });
-
-app.post("/details", async (req, res) => {
-    Detail.create(req.body).then((detail) => {
-        console.log (detail);
+app.get("/breeds/:id", async (req, res) => {
+    try {
+        const breeds = await Breed.findByPk(req.params.id);
+        res.json(breeds);
+    } catch (err) {
+        console.error("Error fetching breeds:", err);
+        res.status(500).send(err);
+    }
+});
+app.post("/breeds", async (req, res) => {
+    await Breed.create(req.body).then((breed) => {
         res.send(req.body);
-       
     }).catch((err) => {
         res.status(500).send(err);
     });
-    
 });
-
-
-// 📌 PUT: อัปเดตรายละเอียดคำสั่งซื้อ
-app.put("/details/:detail_id", async (req, res) => {
+app.put("/breeds/:id", async (req, res) => {
     try {
-        const { detail_id } = req.params;
-        const { order_id, cat_id, quantity, unitPrice } = req.body;
-        const detail = await Detail.findByPk(detail_id);
-
-        if (!detail) {
-            return res.status(404).json({ message: "Detail not found" });
+        const resBreed = await Breed.findByPk(req.params.id);
+        if (!resBreed) {
+            return res.status(404).send("Breed not found");
         }
-
-        detail.order_id = order_id || detail.order_id;
-        detail.cat_id = cat_id || detail.cat_id;
-        detail.quantity = quantity || detail.quantity;
-        detail.unitPrice = unitPrice || detail.unitPrice;
-
-        await detail.save();
-        res.json(detail);
+        await resBreed.update(req.body);
+        res.json(resBreed);
     } catch (err) {
-        console.error("Error updating detail:", err);
+        console.error("Error updating cat:", err);
         res.status(500).send(err);
     }
 });
-
-// 📌 DELETE: ลบรายละเอียดคำสั่งซื้อ
-app.delete("/details/:detail_id", async (req, res) => {
+app.delete("/breeds/:id", async (req, res) => {
     try {
-        const { detail_id } = req.params;
-        const detail = await Detail.findByPk(detail_id);
-
-        if (!detail) {
-            return res.status(404).json({ message: "Detail not found" });
+        const resBreed = await Breed.findByPk(req.params.id);
+        if (!resBreed) {
+            return res.status(404).send("Breed not found");
         }
-
-        await detail.destroy();
-        res.json({ message: "Detail deleted successfully" });
+        await resBreed.destroy();
+        res.status(204).send();
     } catch (err) {
-        console.error("Error deleting detail:", err);
+        console.error("Error deleting breed:", err);
         res.status(500).send(err);
     }
 });
-
+app.get("/breeds/edit/:id", async (req, res) => {
+    try {
+        const resBreed = await Breed.findByPk(req.params.id);
+        if (!resBreed) {
+            return res.status(404).send("Breed not found");
+        }
+        const breed = resBreed.dataValues;
+        res.json(breed);
+    } catch (err) {
+        console.error("Error fetching cat:", err);
+        res.status(500).send(err);
+    }
+});
 
 // ตรวจสอบการเชื่อมต่อฐานข้อมูลก่อนเริ่มเซิร์ฟเวอร์
 checkDatabaseConnection().then(() => {
