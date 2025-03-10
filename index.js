@@ -13,30 +13,6 @@ const sequelizeCat = new Sequelize({
     logging: false, // ปิด log ของ sequelize
 });
 
-// const sequelizeEmployee = new Sequelize({
-//     dialect: "sqlite",
-//     storage: "./Database/employees.db", // ฐานข้อมูลสำหรับตาราง employee
-//     logging: false,
-// });
-
-// const sequelizeOrder = new Sequelize({
-//     dialect: "sqlite",
-//     storage: "./Database/order.db", // ฐานข้อมูลสำหรับตาราง order
-//     logging: false,
-// });
-
-// const sequelizeDetail = new Sequelize({
-//     dialect: "sqlite",
-//     storage: "./Database/detail.db", // ฐานข้อมูลสำหรับตาราง detail
-//     logging: false,
-// });
-
-// const sequelizeCustomer = new Sequelize({
-//     dialect: "sqlite",
-//     storage: "./Database/customer.db",
-//     logging: false,
-// });
-
 
 // 📌 ตรวจสอบการเชื่อมต่อฐานข้อมูล
 async function checkDatabaseConnection() {
@@ -86,42 +62,6 @@ const Cat = sequelizeCat.define("cat", {
         defaultValue: "Available",
     },
 });
-
-// const Employee = sequelizeEmployee.define("employee", {
-//     id: {
-//         type: DataTypes.INTEGER,
-//         autoIncrement: true,
-//         primaryKey: true,
-//     },
-//     username: {
-//         type: DataTypes.STRING,
-//         allowNull: false,
-//         unique: true,
-//     },
-//     firstName: {
-//         type: DataTypes.STRING,
-//         allowNull: false,
-//     },
-//     lastName: {
-//         type: DataTypes.STRING,
-//         allowNull: false,
-//     },
-//     email: {
-//         type: DataTypes.STRING,
-//         allowNull: false,
-//         unique: true,
-//         validate: {
-//             isEmail: true,
-//         },
-//     },
-//     phoneNumber: {
-//         type: DataTypes.STRING,
-//         allowNull: false,
-//         validate: {
-//             isNumeric: true,
-//         },
-//     }
-// });
 
 const Order = sequelizeCat.define("order", {
     id: {
