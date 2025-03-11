@@ -332,6 +332,7 @@ app.post("/orders", async (req, res) => {
         const {cat, customer, quantity, unitPrice } = req.body;
 
         if (!cat || !customer || !quantity || !unitPrice) {
+            console.log(req.body)
             return res.status(400).json({ error: "Missing required fields" });
         }
         
