@@ -522,7 +522,7 @@ app.get("/reports/detail", async (req, res) => {
             ],
             where: {
                 order_date: {
-                    [Op.between]: [`${date} 00:00:00`, `${date} 23:59:59`] // ✅ Fixed template literals
+                    [sequelizeCat.Op.between]: [${date} 00:00:00, ${date} 23:59:59]
                 }
             },
             order: [["order_date", "ASC"]],
