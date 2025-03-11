@@ -546,6 +546,46 @@ app.get("/breeds/edit/:id", async (req, res) => {
     }
 });
 
+app.get("/reports", async (req, res) => {
+    try {
+        const reports = await Order.findAll({
+            attributes: [
+                [sequelizeCat.fn("DATE", sequelizeCat.col("order_date")), "order_date"],
+                [sequelizeCat.fn("SUM", sequelizeCat.col("total_amount")), "total"],
+            ],
+            group: [sequelizeCat.fn("DATE", sequelizeCat.col("order_date"))],
+            raw: true,
+        });
+        res.json(reports);
+    } catch (err) {
+        console.error("Error fetching reports:", err);
+        res.status(500).send(err);
+    }
+});
+app.get("/reports/detail", async (req, res) => {
+    try {
+        const { date } = req.query;
+        const reports = await Order.findAll({
+            attributes: [
+                [sequelizeCat.fn("DATE", sequelizeCat.col("order_date")), "order_date"],
+                [sequelizeCat.fn("printf", "O%03d", sequelizeCat.col("id")), "order_id"],
+                "customer_name",
+                "cat_name",
+                // "breed",
+                "quantity",
+                "unitPrice",
+                "total_amount",
+            ],
+            where: sequelizeCat.where(sequelizeCat.fn("DATE", sequelizeCat.col("order_date")), date),
+            raw: true,
+        });
+        res.json(reports);
+    } catch (err) {
+        console.error("Error fetching reports:", err);
+        res.status(500).send(err);
+    }
+});
+
 // ตรวจสอบการเชื่อมต่อฐานข้อมูลก่อนเริ่มเซิร์ฟเวอร์
 checkDatabaseConnection().then(() => {
     // 📌 Start Server
