@@ -490,39 +490,49 @@ app.get("/reports", async (req, res) => {
     try {
         const reports = await Order.findAll({
             attributes: [
-                [sequelizeCat.fn("DATE", sequelizeCat.col("order_date")), "order_date"],
+                [sequelizeCat.literal("DATE(order_date)"), "order_date"],
                 [sequelizeCat.fn("SUM", sequelizeCat.col("total_amount")), "total"],
             ],
-            group: [sequelizeCat.fn("DATE", sequelizeCat.col("order_date"))],
+            group: [sequelizeCat.literal("DATE(order_date)")],
+            order: [[sequelizeCat.literal("DATE(order_date)"), "DESC"]],
             raw: true,
         });
         res.json(reports);
     } catch (err) {
         console.error("Error fetching reports:", err);
-        res.status(500).send(err);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 app.get("/reports/detail", async (req, res) => {
     try {
         const { date } = req.query;
+        if (!date) {
+            return res.status(400).json({ error: "Missing required parameter: date" });
+        }
+
         const reports = await Order.findAll({
             attributes: [
-                [sequelizeCat.fn("DATE", sequelizeCat.col("order_date")), "order_date"],
-                [sequelizeCat.fn("printf", "O%03d", sequelizeCat.col("id")), "order_id"],
+                [sequelizeCat.literal("DATE(order_date)"), "order_date"],
+                [sequelizeCat.literal("printf('O%03d', id)"), "order_id"],
                 "customer_name",
                 "cat_name",
-                // "breed",
                 "quantity",
                 "unitPrice",
                 "total_amount",
             ],
-            where: sequelizeCat.where(sequelizeCat.fn("DATE", sequelizeCat.col("order_date")), date),
+            where: {
+                order_date: {
+                    [Op.between]: [`${date} 00:00:00`, `${date} 23:59:59`] // ✅ Fixed template literals
+                }
+            },
+            order: [["order_date", "ASC"]],
             raw: true,
         });
+
         res.json(reports);
     } catch (err) {
-        console.error("Error fetching reports:", err);
-        res.status(500).send(err);
+        console.error("Error fetching report details:", err);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
