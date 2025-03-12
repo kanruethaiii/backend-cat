@@ -104,29 +104,6 @@ const Order = sequelizeCat.define("order", {
     }
 });
 
-// const OrderDetail = sequelizeCat.define("order_detail", {
-//     detail_id: {
-//         type: DataTypes.INTEGER,
-//         primaryKey: true,
-//         autoIncrement: true,
-//     },
-//     order_id: {
-//         type: DataTypes.STRING,
-//         allowNull: false,
-//     },
-//     cat_id: {
-//         type: DataTypes.INTEGER,
-//         allowNull: false,
-//     },
-//     quantity: {
-//         type: DataTypes.INTEGER,
-//         allowNull: false,
-//     },
-//     unitPrice: {
-//         type: DataTypes.FLOAT,
-//         allowNull: false,
-//     },
-// });
 
 const Customer = sequelizeCat.define("customer", {
     id: {
